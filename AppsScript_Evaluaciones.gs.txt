@@ -1,0 +1,79 @@
+/**
+ * WEBHOOK GENÉRICO DE EVALUACIONES
+ * Reutilizable para cualquier formulario de evaluación futura.
+ *
+ * Cómo funciona:
+ * - Cada formulario HTML manda un campo "tipo_evaluacion" (ej: "Cierre_Raspadita_Infinia_2026").
+ * - Ese valor se usa como nombre de pestaña dentro de esta planilla.
+ * - Si la pestaña no existe, se crea sola con los encabezados que llegaron.
+ * - Si llegan campos nuevos que no existían antes, se agregan como columna nueva
+ *   automáticamente (no rompe evaluaciones ya guardadas).
+ *
+ * INSTALACIÓN (una sola vez):
+ * 1. Crear una Google Sheet nueva, llamarla "Registro_Evaluaciones".
+ * 2. Extensiones → Apps Script.
+ * 3. Borrar el contenido del editor y pegar este archivo completo.
+ * 4. Guardar (ícono disco).
+ * 5. Implementar → Nueva implementación → tipo "Aplicación web".
+ *    - Ejecutar como: Yo
+ *    - Quién tiene acceso: Cualquier usuario
+ * 6. Copiar la URL que te da ("Web app URL"). Esa URL va dentro de CADA
+ *    formulario HTML, en la constante ENDPOINT.
+ * 7. Cada vez que se actualice este código, hay que "Implementar → Gestionar
+ *    implementaciones → editar (lápiz) → Nueva versión" para que el cambio
+ *    se aplique sin cambiar la URL.
+ */
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var tipo = (data.tipo_evaluacion || "Sin_Tipo").toString().substring(0, 90);
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(tipo);
+
+    var incomingKeys = Object.keys(data);
+    var headers = ["Timestamp"].concat(incomingKeys);
+
+    if (!sheet) {
+      sheet = ss.insertSheet(tipo);
+      sheet.appendRow(headers);
+      sheet.setFrozenRows(1);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
+    } else {
+      var lastCol = sheet.getLastColumn();
+      var existingHeaders = lastCol > 0
+        ? sheet.getRange(1, 1, 1, lastCol).getValues()[0]
+        : [];
+      var newHeaders = headers.filter(function (h) {
+        return existingHeaders.indexOf(h) === -1;
+      });
+      if (newHeaders.length > 0) {
+        sheet.getRange(1, existingHeaders.length + 1, 1, newHeaders.length)
+          .setValues([newHeaders])
+          .setFontWeight("bold");
+        existingHeaders = existingHeaders.concat(newHeaders);
+      }
+      headers = existingHeaders;
+    }
+
+    var row = headers.map(function (h) {
+      if (h === "Timestamp") return new Date();
+      return data[h] !== undefined ? data[h] : "";
+    });
+    sheet.appendRow(row);
+    sheet.autoResizeColumns(1, headers.length);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "ok" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput("Webhook de evaluaciones activo. Usar POST.");
+}
