@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación de Cierre — Raspadita Infinia 2026</title>
+<style>
+  :root{
+    --azul:#003DA5;
+    --azul-osc:#00265f;
+    --rojo:#D0021B;
+    --gris-fondo:#F4F6F9;
+    --gris-borde:#D8DEE6;
+    --texto:#1B2430;
+    --verde:#1B8A4A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--gris-fondo);
+    color:var(--texto);
+    padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--azul),var(--azul-osc));
+    color:#fff;
+    padding:28px 20px 22px;
+    text-align:center;
+  }
+  header h1{margin:0 0 4px;font-size:1.3rem;letter-spacing:.3px;}
+  header p{margin:0;font-size:.85rem;opacity:.9;}
+  .deadline{
+    background:#FFF3CD;
+    color:#7A5B00;
+    text-align:center;
+    padding:10px 16px;
+    font-size:.85rem;
+    font-weight:600;
+    border-bottom:1px solid #F0DCA0;
+  }
+  main{max-width:640px;margin:0 auto;padding:16px;}
+  .section{
+    background:#fff;
+    border:1px solid var(--gris-borde);
+    border-radius:10px;
+    padding:18px 16px;
+    margin-bottom:16px;
+  }
+  .section h2{
+    font-size:1.02rem;
+    color:var(--azul-osc);
+    margin:0 0 4px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .section h2 .num{
+    background:var(--azul);
+    color:#fff;
+    font-size:.75rem;
+    padding:2px 8px;
+    border-radius:20px;
+  }
+  .section .intro{
+    font-size:.82rem;
+    color:#5A6472;
+    margin:0 0 14px;
+  }
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:.9rem;
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .field input[type=text],
+  .field input[type=date],
+  .field select{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--gris-borde);
+    border-radius:8px;
+    font-size:.95rem;
+    background:#fff;
+  }
+  textarea{
+    width:100%;
+    min-height:70px;
+    padding:10px 12px;
+    border:1px solid var(--gris-borde);
+    border-radius:8px;
+    font-size:.9rem;
+    font-family:inherit;
+    resize:vertical;
+  }
+  .scale{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:6px;
+  }
+  .scale input{display:none;}
+  .scale label{
+    text-align:center;
+    padding:10px 0;
+    border:1px solid var(--gris-borde);
+    border-radius:8px;
+    font-weight:700;
+    font-size:.95rem;
+    color:#5A6472;
+    background:#fff;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .scale input:checked + label{
+    background:var(--azul);
+    color:#fff;
+    border-color:var(--azul);
+  }
+  .scale-caption{
+    display:flex;
+    justify-content:space-between;
+    font-size:.68rem;
+    color:#8C97A5;
+    margin-top:4px;
+  }
+  .radio-group{display:flex;gap:8px;flex-wrap:wrap;}
+  .radio-group input{display:none;}
+  .radio-group label{
+    padding:9px 14px;
+    border:1px solid var(--gris-borde);
+    border-radius:20px;
+    font-size:.85rem;
+    background:#fff;
+    cursor:pointer;
+  }
+  .radio-group input:checked + label{
+    background:var(--azul);
+    color:#fff;
+    border-color:var(--azul);
+  }
+  .rank-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .rank-row span{
+    width:22px;height:22px;border-radius:50%;
+    background:var(--azul);color:#fff;font-size:.75rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .rank-row input{
+    flex:1;padding:8px 10px;border:1px solid var(--gris-borde);border-radius:8px;font-size:.88rem;
+  }
+  button.submit{
+    width:100%;
+    padding:15px;
+    background:var(--rojo);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:1.02rem;
+    font-weight:700;
+    letter-spacing:.3px;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  button.submit:disabled{background:#B9BFC7;}
+  .footer-note{
+    text-align:center;
+    font-size:.78rem;
+    color:#8C97A5;
+    margin-top:14px;
+  }
+  #okScreen{
+    display:none;
+    max-width:520px;
+    margin:60px auto;
+    text-align:center;
+    padding:0 24px;
+  }
+  #okScreen .check{
+    width:64px;height:64px;border-radius:50%;
+    background:var(--verde);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 16px;font-size:2rem;
+  }
+  #okScreen h2{color:var(--azul-osc);margin-bottom:6px;}
+  #errScreen{
+    display:none;
+    background:#FDEBEC;color:#8A1F27;
+    border:1px solid #F3C1C6;border-radius:8px;
+    padding:12px 14px;font-size:.85rem;margin-bottom:14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Evaluación de Cierre</h1>
+  <p>Promoción Raspadita YPF Infinia 2026</p>
+</header>
+<div class="deadline">📌 Enviá esta evaluación antes del martes 8 de julio</div>
+
+<main id="formWrapper">
+
+  <div id="errScreen"></div>
+
+  <form id="evalForm">
+
+    <div class="section">
+      <h2><span class="num">1</span> Datos generales</h2>
+      <div class="field">
+        <label>Estación</label>
+        <select name="estacion" required>
+          <option value="">Seleccioná...</option>
+          <option>GNC Escobar</option>
+          <option>Gas Impulso</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nombre del encargado</label>
+        <input type="text" name="nombre_encargado" required>
+      </div>
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" name="fecha" required>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><span class="num">2</span> Usabilidad del sistema</h2>
+      <p class="intro">1 = muy deficiente · 5 = excelente</p>
+      <div class="field" data-scale="Facilidad para escanear el QR y raspar la tarjeta"></div>
+      <div class="field" data-scale="Claridad de la pantalla de premio para el cliente"></div>
+      <div class="field" data-scale="Facilidad de uso del panel de canje"></div>
+      <div class="field" data-scale="Facilidad de uso del panel de ranking"></div>
+      <div class="field" data-scale="Velocidad de respuesta del sistema"></div>
+      <div class="field" data-scale="Claridad de los mensajes de error"></div>
+      <div class="field">
+        <label>¿Qué parte del sistema te resultó más difícil de usar, a ti o a tu equipo? ¿Por qué?</label>
+        <textarea name="usab_dificil"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><span class="num">3</span> Funcionalidad operativa</h2>
+      <div class="field" data-scale="Proceso de canje de premios en el mostrador"></div>
+      <div class="field" data-scale="Control de stock"></div>
+      <div class="field" data-scale="Funcionamiento de premios por turno"></div>
+      <div class="field" data-scale="Funcionamiento de premios de fidelidad"></div>
+      <div class="field" data-scale="Utilidad del ranking para motivar al equipo"></div>
+      <div class="field">
+        <label>¿Hubo algún premio, stock o turno que generó confusión o reclamos? Contá el caso.</label>
+        <textarea name="func_confusion"></textarea>
+      </div>
+      <div class="field">
+        <label>¿Se presentaron códigos duplicados, vencidos o rechazados que afectaron la venta?</label>
+        <textarea name="func_codigos"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><span class="num">4</span> Control de fraude y seguridad</h2>
+      <div class="field" data-scale="Efectividad para detectar jugadas irregulares"></div>
+      <div class="field" data-scale="Claridad de la información de fraude en el ranking"></div>
+      <div class="field" data-scale="Tiempo de respuesta ante una alerta detectada"></div>
+      <div class="field">
+        <label>¿Tuviste que gestionar algún caso de sospecha de fraude? ¿Cómo se resolvió?</label>
+        <textarea name="fraude_caso"></textarea>
+      </div>
+      <div class="field">
+        <label>¿Las reglas de control de fraude estuvieron bien comunicadas a tu equipo? ¿Qué mejorarías?</label>
+        <textarea name="fraude_comunicacion"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><span class="num">5</span> Percepción del cliente</h2>
+      <div class="field" data-scale="Satisfacción percibida del cliente con la dinámica"></div>
+      <div class="field" data-scale="Claridad para el cliente sobre cómo participar y qué ganó"></div>
+      <div class="field" data-scale="Entusiasmo generado por los premios"></div>
+      <div class="field" data-scale="Agilidad percibida en el canje"></div>
+      <div class="field">
+        <label>¿Qué comentarios espontáneos hicieron los clientes sobre la promoción?</label>
+        <textarea name="cliente_comentarios"></textarea>
+      </div>
+      <div class="field">
+        <label>¿Hubo algún premio que generó mayor entusiasmo o decepción? ¿Cuál y por qué?</label>
+        <textarea name="cliente_premio_destacado"></textarea>
+      </div>
+      <div class="field">
+        <label>¿Notaste clientes que volvieron a cargar combustible específicamente por la promoción?</label>
+        <textarea name="cliente_recompra"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><span class="num">6</span> Impacto en ventas y equipo</h2>
+      <div class="field" data-scale="Impacto percibido en el volumen de venta de Infinia"></div>
+      <div class="field" data-scale="Impacto percibido en la motivación del equipo"></div>
+      <div class="field" data-scale="Relación esfuerzo administrativo / resultado"></div>
+      <div class="field">
+        <label>¿La promoción ayudó a alcanzar los objetivos planteados? ¿Por qué sí o por qué no?</label>
+        <textarea name="impacto_objetivos"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><span class="num">7</span> Soporte y comunicación</h2>
+      <div class="field" data-scale="Claridad de las instrucciones iniciales recibidas"></div>
+      <div class="field" data-scale="Velocidad de resolución ante consultas técnicas"></div>
+      <div class="field" data-scale="Disponibilidad de soporte en turnos críticos"></div>
+      <div class="field">
+        <label>¿Qué información o capacitación te hubiese gustado tener antes de empezar?</label>
+        <textarea name="soporte_capacitacion"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><span class="num">8</span> Evaluación general</h2>
+      <div class="field">
+        <label>¿Recomendarías continuar usando este tipo de herramienta digital?</label>
+        <div class="radio-group" data-radio="recomendacion">
+          <input type="radio" name="recomendacion" value="Sí, sin cambios" id="rec1"><label for="rec1">Sí, sin cambios</label>
+          <input type="radio" name="recomendacion" value="Sí, con mejoras" id="rec2"><label for="rec2">Sí, con mejoras</label>
+          <input type="radio" name="recomendacion" value="No" id="rec3"><label for="rec3">No</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>3 principales fortalezas del sistema, en orden de importancia</label>
+        <div class="rank-row"><span>1</span><input type="text" name="fortaleza_1"></div>
+        <div class="rank-row"><span>2</span><input type="text" name="fortaleza_2"></div>
+        <div class="rank-row"><span>3</span><input type="text" name="fortaleza_3"></div>
+      </div>
+      <div class="field">
+        <label>3 principales debilidades o puntos a mejorar, en orden de importancia</label>
+        <div class="rank-row"><span>1</span><input type="text" name="debilidad_1"></div>
+        <div class="rank-row"><span>2</span><input type="text" name="debilidad_2"></div>
+        <div class="rank-row"><span>3</span><input type="text" name="debilidad_3"></div>
+      </div>
+      <div class="field">
+        <label>¿Qué funcionalidad nueva agregarías para la próxima edición?</label>
+        <textarea name="funcionalidad_nueva"></textarea>
+      </div>
+      <div class="field">
+        <label>Comentarios adicionales</label>
+        <textarea name="comentarios_adicionales"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="submit" id="submitBtn">Enviar evaluación</button>
+    <p class="footer-note">Tus respuestas se guardan automáticamente. No hace falta reenviar nada por WhatsApp.</p>
+  </form>
+</main>
+
+<div id="okScreen">
+  <div class="check">✓</div>
+  <h2>¡Evaluación enviada!</h2>
+  <p>Gracias por tu tiempo. La información va a ser usada para mejorar la herramienta en futuras ediciones.</p>
+</div>
+
+<script>
+  // ⚠️ Reemplazar por la URL de implementación del Apps Script (paso 6 de las instrucciones)
+  const ENDPOINT = "PEGAR_AQUI_LA_URL_DEL_APPS_SCRIPT";
+  const TIPO_EVALUACION = "Cierre_Raspadita_Infinia_2026";
+
+  // Genera automáticamente los bloques de escala 1-5 a partir de data-scale
+  let scaleCount = 0;
+  document.querySelectorAll('[data-scale]').forEach(function(field){
+    scaleCount++;
+    const labelText = field.getAttribute('data-scale');
+    const fieldName = 'esc_' + scaleCount + '_' + labelText
+      .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9]+/g,'_').substring(0,40);
+    let html = '<label>' + labelText + '</label><div class="scale">';
+    for(let i=1;i<=5;i++){
+      html += '<input type="radio" name="'+fieldName+'" value="'+i+'" id="'+fieldName+'_'+i+'" required>' +
+              '<label for="'+fieldName+'_'+i+'">'+i+'</label>';
+    }
+    html += '</div><div class="scale-caption"><span>Muy deficiente</span><span>Excelente</span></div>';
+    field.innerHTML = html;
+  });
+
+  const form = document.getElementById('evalForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const errScreen = document.getElementById('errScreen');
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    errScreen.style.display = 'none';
+
+    if (ENDPOINT.indexOf('PEGAR_AQUI') !== -1) {
+      errScreen.textContent = 'Falta configurar la URL del Apps Script en el archivo (ENDPOINT).';
+      errScreen.style.display = 'block';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+
+    const data = {};
+    new FormData(form).forEach((value, key) => { data[key] = value; });
+    data.tipo_evaluacion = TIPO_EVALUACION;
+
+    fetch(ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    })
+    .then(function(){
+      document.getElementById('formWrapper').style.display = 'none';
+      document.getElementById('okScreen').style.display = 'block';
+      window.scrollTo(0,0);
+    })
+    .catch(function(){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar evaluación';
+      errScreen.textContent = 'No se pudo enviar. Revisá tu conexión e intentá de nuevo.';
+      errScreen.style.display = 'block';
+    });
+  });
+</script>
+
+</body>
+</html>
